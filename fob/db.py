@@ -4,7 +4,7 @@ import sqlite3
 DB_PATH = "fob.db"  # TODO: Change this to a better location later
 
 
-def insert_query(table, columns, values):
+def insert(table, columns, values):
     query = " ".join([
         "INSERT INTO",
         table,
@@ -19,7 +19,7 @@ def insert_query(table, columns, values):
         cursor.execute(query, values)
 
 
-def select_query(value, column="service_name"):
+def select_row(value, column="service_name"):
     query = " ".join(["SELECT * FROM passwords WHERE", column, "= ?"])
 
     # TODO: Add exception handling
@@ -28,5 +28,15 @@ def select_query(value, column="service_name"):
         cursor = conn.cursor()
         cursor.execute(query, value)
         result = cursor.fetchone()
+
+    return result
+
+
+def select_single(table):
+    # TODO: Add exception handling
+    with sqlite3.connect(DB_PATH) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM " + table)
+        result, = cursor.fetchone()
 
     return result
