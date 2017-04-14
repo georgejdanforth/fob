@@ -33,21 +33,25 @@ def help_message():
 
 
 def write_read_password_tempfile(result):
-    # TODO: exception handling
     fd, fname = tempfile.mkstemp(text=True)
-    f = os.fdopen(fd, "w")
-    for key in result.keys():
-        f.write(" ".join([key, "-", result[key], "\n"]))
-    f.close()
-    os.system("$EDITOR " + fname)    
-    os.unlink(fname)
+
+    try:
+        f = os.fdopen(fd, "w")
+        for key in ["service_name", "service_url", "account_name", "password"]:
+            f.write(" ".join([key.replace("_", " "), ":", result[key], "\n"]))
+        f.close()
+
+        editor = os.environ.get("EDITOR", "vi")
+
+        os.system(" ".join([editor, fname]))
+    finally:
+        os.unlink(fname)
 
 
 def add_password():
     fob_password = get_fob_password()
     if crypto.hash_fob_password(fob_password) != db.select_single("fob_passwords"):
-        # TODO: handle error properly
-        quit()
+        sys.exit("Incorrect password.")
 
     service_name = input("service name: ")
     service_url = input("service url: ")
@@ -66,15 +70,15 @@ def add_password():
 
 def retreive_password():
     fob_password = get_fob_password()
-    service_name = input("Service name: ")
     if crypto.hash_fob_password(fob_password) != db.select_single("fob_passwords"):
-        # TODO: handle error properly
+        sys.exit("Incorrect password.")
         quit()
+
+    service_name = input("Service name: ")
 
     result = db.select_row((service_name,))
     if result is None:
-        # TODO: handle error properly
-        quit()
+        sys.exit("Service not found.")
 
     result = {key: result[key] for key in result.keys() if key != "password_id"}
 
