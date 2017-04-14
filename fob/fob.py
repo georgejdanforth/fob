@@ -29,6 +29,7 @@ def config_db():
 
 
 def help_message():
+    # TODO: Add details.
     print("usage: fob <command> <argument>")
 
 
@@ -46,6 +47,12 @@ def write_read_password_tempfile(result):
         os.system(" ".join([editor, fname]))
     finally:
         os.unlink(fname)
+
+
+def list_services():
+    service_names = db.select_services()
+    for service_name in service_names:
+        print("*", service_name)
 
 
 def add_password():
@@ -90,6 +97,7 @@ def retreive_password():
 
 
 commands = {
+    "ls": list_services,
     "add": add_password,
     "get": retreive_password,
     "help": help_message,

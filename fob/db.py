@@ -40,3 +40,13 @@ def select_single(table):
         result, = cursor.fetchone()
 
     return result
+
+
+def select_services():
+    # TODO: Add exception handling
+    with sqlite3.connect(DB_PATH) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT service_name FROM passwords")
+        result = [service_name[0] for service_name in cursor.fetchall()]
+
+    return result
