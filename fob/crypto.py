@@ -10,9 +10,6 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 
-# TODO: Refactor crypto code into here
-
-
 # TODO: investigate doing this with cryptography instead of hashlib
 def hash_fob_password(fob_password):
     hash_func = hashlib.sha256()

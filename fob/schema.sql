@@ -4,7 +4,7 @@ CREATE TABLE passwords(
     password_id INTEGER PRIMARY KEY,
     service_name TEXT NOT NULL,
     service_url TEXT,
-    account_name BLOB NOT NULL,
+    account_name TEXT NOT NULL,
     password BLOB NOT NULL
 );
 

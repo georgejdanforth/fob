@@ -60,18 +60,22 @@ def add_password():
     if crypto.hash_fob_password(fob_password) != db.select_single("fob_passwords"):
         sys.exit("Incorrect password.")
 
-    service_name = input("service name: ")
-    service_url = input("service url: ")
-    account_name = bytes_input("account name: ")
-    password = bytes_input("password: ")
+    service_name = input("Service Name: ")
+    service_url = input("Service URL: ")
+    account_name = input("Account Name: ")
 
-    hashed_account_name = crypto.encrypt(fob_password, account_name)
+    existing_accounts = db.select_password(service_name, account_name)
+
+    if existing_accounts is not None:
+        sys.exit("Password already exists for account: '" + account_name + "'")
+
+    password = bytes_input("Password: ")
     hashed_password = crypto.encrypt(fob_password, password)
 
     db.insert(
         "passwords",
         "(service_name, service_url, account_name, password)",
-        (service_name, service_url, hashed_account_name, hashed_password)
+        (service_name, service_url, account_name, hashed_password)
     )
 
 
@@ -79,19 +83,16 @@ def retreive_password():
     fob_password = get_fob_password()
     if crypto.hash_fob_password(fob_password) != db.select_single("fob_passwords"):
         sys.exit("Incorrect password.")
-        quit()
 
-    service_name = input("Service name: ")
+    service_name = input("Service Name: ")
+    account_name = input("Account Name: ")
 
-    result = db.select_row((service_name,))
+    result = db.select_password(service_name, account_name)
     if result is None:
-        sys.exit("Service not found.")
+        sys.exit("Account not found.")
 
     result = {key: result[key] for key in result.keys() if key != "password_id"}
-
-    # lol @ these 2 lines
-    for field in ["account_name", "password"]:
-        result[field] = str(crypto.decrypt(fob_password, result[field]))
+    result["password"] = str(crypto.decrypt(fob_password, result["password"]))
 
     write_read_password_tempfile(result)
 
@@ -101,6 +102,7 @@ commands = {
     "add": add_password,
     "get": retreive_password,
     "help": help_message,
+    "config": config_db,  # remove this later
 }
 
 
